@@ -24,7 +24,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func setupStatusBar() {
         let statusBar = NSStatusBar.system
         statusBarItem = statusBar.statusItem(withLength: NSStatusItem.squareLength)
-        statusBarItem.button?.title = "🌯"
+        statusBarItem.button?.title = "🔥"
         let statusBarMenu = NSMenu()
         statusBarItem.menu = statusBarMenu
 
@@ -39,26 +39,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             keyEquivalent: "")
     }
 
-    func dialogOKCancel() -> Bool {
-        let alert = NSAlert()
-        alert.messageText = "Enter your Google Authenticator secret"
-        alert.informativeText = "Enter your Google Authenticator secret"
-        alert.alertStyle = .warning
-        alert.addButton(withTitle: "OK")
-        alert.addButton(withTitle: "Cancel")
-        return alert.runModal() == .alertFirstButtonReturn
-    }
-
     @objc func copyToken() {
-        guard let data = base32DecodeToData("(put your token here)") else { return }
+        let defaults = UserDefaults.standard
+        let base32 = defaults.string(forKey: "base32")
+        print("Using secret: ", base32 ?? "")
+        guard let data = base32DecodeToData(base32 ?? "") else { return }
         if let totp = TOTP(secret: data) {
             let token = totp.generate(time: Date())
-            print(token as Any)
+            print(token ?? "")
             let pasteBoard = NSPasteboard.general
             pasteBoard.clearContents()
             pasteBoard.setString(token ?? "", forType: .string)
-            let answer = dialogOKCancel()
-            print(answer)
         } else {
             print("Invalid token URL")
         }
