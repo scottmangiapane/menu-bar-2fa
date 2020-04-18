@@ -27,7 +27,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func setupStatusBar() {
         let statusBar = NSStatusBar.system
         statusBarItem = statusBar.statusItem(withLength: NSStatusItem.squareLength)
-        statusBarItem.button?.image = NSImage(named: NSImage.Name("go"))
+        statusBarItem.button?.image = NSImage(named: NSImage.Name("lock"))
         let statusBarMenu = NSMenu()
         statusBarItem.menu = statusBarMenu
 
