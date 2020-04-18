@@ -13,27 +13,36 @@ import SwiftUI
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     var window: NSWindow!
+    var statusBarItem: NSStatusItem!
 
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        // Create the SwiftUI view that provides the window contents.
-        let contentView = ContentView()
+        NSApp.setActivationPolicy(.prohibited)
 
-        // Create the window and set the content view. 
-        window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 480, height: 300),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
-            backing: .buffered, defer: false)
-        window.center()
-        window.setFrameAutosaveName("Main Window")
-        window.contentView = NSHostingView(rootView: contentView)
-        window.makeKeyAndOrderFront(nil)
+        let statusBar = NSStatusBar.system
+        statusBarItem = statusBar.statusItem(withLength: NSStatusItem.squareLength)
+        statusBarItem.button?.title = "🌯"
+        let statusBarMenu = NSMenu(title: "Cap Status Bar Menu")
+        statusBarItem.menu = statusBarMenu
+
+        statusBarMenu.addItem(
+            withTitle: "Order a burrito",
+            action: #selector(AppDelegate.orderABurrito),
+            keyEquivalent: "")
+
+        statusBarMenu.addItem(
+            withTitle: "Quit",
+            action: #selector(AppDelegate.quitApp),
+            keyEquivalent: "")
     }
 
-    func applicationWillTerminate(_ aNotification: Notification) {
-        // Insert code here to tear down your application
+    @objc func orderABurrito() {
+        print("Ordering a burrito!")
     }
 
+    @objc func quitApp() {
+        NSApplication.shared.terminate(self)
+    }
 
+    func applicationWillTerminate(_ aNotification: Notification) {}
 }
-
