@@ -16,13 +16,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		391E0409244A851D004A05C1 /* Top Bar 2FA.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Top Bar 2FA.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		391E0409244A851D004A05C1 /* Menu Bar 2FA.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Menu Bar 2FA.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		391E040C244A851D004A05C1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		391E0410244A8521004A05C1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		391E0413244A8521004A05C1 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		391E0416244A8521004A05C1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		391E0418244A8521004A05C1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		391E0419244A8521004A05C1 /* Top_Bar_2FA.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Top_Bar_2FA.entitlements; sourceTree = "<group>"; };
+		391E0419244A8521004A05C1 /* Menu_Bar_2FA.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Menu_Bar_2FA.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,7 +41,7 @@
 		391E0400244A851D004A05C1 = {
 			isa = PBXGroup;
 			children = (
-				391E040B244A851D004A05C1 /* Top Bar 2FA */,
+				391E040B244A851D004A05C1 /* Menu Bar 2FA */,
 				391E040A244A851D004A05C1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -49,22 +49,22 @@
 		391E040A244A851D004A05C1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				391E0409244A851D004A05C1 /* Top Bar 2FA.app */,
+				391E0409244A851D004A05C1 /* Menu Bar 2FA.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		391E040B244A851D004A05C1 /* Top Bar 2FA */ = {
+		391E040B244A851D004A05C1 /* Menu Bar 2FA */ = {
 			isa = PBXGroup;
 			children = (
 				391E040C244A851D004A05C1 /* AppDelegate.swift */,
 				391E0410244A8521004A05C1 /* Assets.xcassets */,
 				391E0415244A8521004A05C1 /* Main.storyboard */,
 				391E0418244A8521004A05C1 /* Info.plist */,
-				391E0419244A8521004A05C1 /* Top_Bar_2FA.entitlements */,
+				391E0419244A8521004A05C1 /* Menu_Bar_2FA.entitlements */,
 				391E0412244A8521004A05C1 /* Preview Content */,
 			);
-			path = "Top Bar 2FA";
+			path = "Menu Bar 2FA";
 			sourceTree = "<group>";
 		};
 		391E0412244A8521004A05C1 /* Preview Content */ = {
@@ -78,9 +78,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		391E0408244A851D004A05C1 /* Top Bar 2FA */ = {
+		391E0408244A851D004A05C1 /* Menu Bar 2FA */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 391E041C244A8521004A05C1 /* Build configuration list for PBXNativeTarget "Top Bar 2FA" */;
+			buildConfigurationList = 391E041C244A8521004A05C1 /* Build configuration list for PBXNativeTarget "Menu Bar 2FA" */;
 			buildPhases = (
 				391E0405244A851D004A05C1 /* Sources */,
 				391E0406244A851D004A05C1 /* Frameworks */,
@@ -90,13 +90,13 @@
 			);
 			dependencies = (
 			);
-			name = "Top Bar 2FA";
+			name = "Menu Bar 2FA";
 			packageProductDependencies = (
 				39EFBE01244AFE7C009EF31C /* SwiftOTP */,
 				391D3BF7244BA39400F16120 /* KeychainAccess */,
 			);
-			productName = "Top Bar 2FA";
-			productReference = 391E0409244A851D004A05C1 /* Top Bar 2FA.app */;
+			productName = "Menu Bar 2FA";
+			productReference = 391E0409244A851D004A05C1 /* Menu Bar 2FA.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -114,7 +114,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 391E0404244A851D004A05C1 /* Build configuration list for PBXProject "Top Bar 2FA" */;
+			buildConfigurationList = 391E0404244A851D004A05C1 /* Build configuration list for PBXProject "Menu Bar 2FA" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -131,7 +131,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				391E0408244A851D004A05C1 /* Top Bar 2FA */,
+				391E0408244A851D004A05C1 /* Menu Bar 2FA */,
 			);
 		};
 /* End PBXProject section */
@@ -289,22 +289,24 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = "Top Bar 2FA/Top_Bar_2FA.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "Menu Bar 2FA/Menu_Bar_2FA.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"Top Bar 2FA/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Menu Bar 2FA/Preview Content\"";
 				DEVELOPMENT_TEAM = Q642H6AN2C;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = "Top Bar 2FA/Info.plist";
+				INFOPLIST_FILE = "Menu Bar 2FA/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.scottmangiapane.Top-Bar-2FA";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.scottmangiapane.Menu-Bar-2FA";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -313,22 +315,24 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = "Top Bar 2FA/Top_Bar_2FA.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "Menu Bar 2FA/Menu_Bar_2FA.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"Top Bar 2FA/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Menu Bar 2FA/Preview Content\"";
 				DEVELOPMENT_TEAM = Q642H6AN2C;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = "Top Bar 2FA/Info.plist";
+				INFOPLIST_FILE = "Menu Bar 2FA/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.scottmangiapane.Top-Bar-2FA";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.scottmangiapane.Menu-Bar-2FA";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -336,7 +340,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		391E0404244A851D004A05C1 /* Build configuration list for PBXProject "Top Bar 2FA" */ = {
+		391E0404244A851D004A05C1 /* Build configuration list for PBXProject "Menu Bar 2FA" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				391E041A244A8521004A05C1 /* Debug */,
@@ -345,7 +349,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		391E041C244A8521004A05C1 /* Build configuration list for PBXNativeTarget "Top Bar 2FA" */ = {
+		391E041C244A8521004A05C1 /* Build configuration list for PBXNativeTarget "Menu Bar 2FA" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				391E041D244A8521004A05C1 /* Debug */,

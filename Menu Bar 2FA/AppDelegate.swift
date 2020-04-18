@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  Top Bar 2FA
+//  Menu Bar 2FA
 //
 //  Created by Scott Mangiapane on 4/17/20.
 //  Copyright © 2020 Scott Mangiapane. All rights reserved.
@@ -14,7 +14,7 @@ import SwiftUI
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-    var keychain = Keychain(service: "com.scottmangiapane.Top-Bar-2FA")
+    var keychain = Keychain(service: "com.scottmangiapane.Menu-Bar-2FA")
     var window: NSWindow!
     var statusBarItem: NSStatusItem!
 
