@@ -39,7 +39,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusBarMenu.addItem(.separator())
 
         statusBarMenu.addItem(
-            withTitle: "Change secret",
+            withTitle: "Change Secret",
             action: #selector(AppDelegate.promptSecret),
             keyEquivalent: "")
 
