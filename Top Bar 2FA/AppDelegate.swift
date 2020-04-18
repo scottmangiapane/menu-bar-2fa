@@ -8,6 +8,7 @@
 
 import Cocoa
 import SwiftOTP
+import SwiftUI
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -17,7 +18,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        NSApp.setActivationPolicy(.prohibited)
+        NSApp.setActivationPolicy(.accessory)
         setupStatusBar()
     }
 
@@ -31,6 +32,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusBarMenu.addItem(
             withTitle: "Copy 2FA token",
             action: #selector(AppDelegate.copyToken),
+            keyEquivalent: "")
+
+        statusBarMenu.addItem(.separator())
+
+        statusBarMenu.addItem(
+            withTitle: "Change secret",
+            action: #selector(AppDelegate.promptSecret),
             keyEquivalent: "")
 
         statusBarMenu.addItem(
@@ -53,6 +61,26 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         } else {
             print("Invalid token URL")
         }
+    }
+
+    @objc func promptSecret() -> Bool {
+        let alert = NSAlert()
+        alert.messageText = "What is your 2FA secret in base 32?"
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: "Cancel")
+
+        let txt = NSTextField(frame: NSRect(x: 0, y: 0, width: 200, height: 24))
+        alert.accessoryView = txt
+        let response: NSApplication.ModalResponse = alert.runModal()
+
+        if (response == .alertFirstButtonReturn) {
+            let defaults = UserDefaults.standard
+            defaults.set(txt.stringValue, forKey: "base32")
+            print("Writing secret to storage...", txt.stringValue)
+            return true
+        }
+        return false
     }
 
     @objc func quitApp() {
