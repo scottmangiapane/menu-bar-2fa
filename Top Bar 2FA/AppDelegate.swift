@@ -13,6 +13,7 @@ import SwiftUI
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
+    var defaults = UserDefaults.standard
     var window: NSWindow!
     var statusBarItem: NSStatusItem!
 
@@ -45,21 +46,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             withTitle: "Quit",
             action: #selector(AppDelegate.quitApp),
             keyEquivalent: "")
+
+        let secret = defaults.string(forKey: "base32")
+        print("Using secret:", secret ?? "")
+        if (secret == nil) {
+            statusBarMenu.item(at: 0)?.action = nil
+        }
     }
 
     @objc func copyToken() {
-        let defaults = UserDefaults.standard
         let base32 = defaults.string(forKey: "base32")
-        print("Using secret: ", base32 ?? "")
         guard let data = base32DecodeToData(base32 ?? "") else { return }
         if let totp = TOTP(secret: data) {
             let token = totp.generate(time: Date())
-            print(token ?? "")
             let pasteBoard = NSPasteboard.general
             pasteBoard.clearContents()
             pasteBoard.setString(token ?? "", forType: .string)
         } else {
-            print("Invalid token URL")
+            print("Invalid TOTP secret")
         }
     }
 
@@ -75,9 +79,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let response: NSApplication.ModalResponse = alert.runModal()
 
         if (response == .alertFirstButtonReturn) {
-            let defaults = UserDefaults.standard
             defaults.set(txt.stringValue, forKey: "base32")
-            print("Writing secret to storage...", txt.stringValue)
+            statusBarItem.menu?.item(at: 0)?.action = #selector(AppDelegate.copyToken)
+            print("Writing secret to storage:", txt.stringValue)
             return true
         }
         return false
