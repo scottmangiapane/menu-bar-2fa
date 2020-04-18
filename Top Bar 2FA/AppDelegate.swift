@@ -14,7 +14,7 @@ import SwiftUI
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-    var keychain = Keychain(service: "com.scottmangiapane.top-bar-2fa")
+    var keychain = Keychain(service: "com.scottmangiapane.Top-Bar-2FA")
     var window: NSWindow!
     var statusBarItem: NSStatusItem!
 
@@ -49,7 +49,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             keyEquivalent: "")
 
         let secret = keychain["base32"]
-        print("Using secret:", secret ?? "")
         if (secret == nil) {
             statusBarMenu.item(at: 0)?.action = nil
         }
@@ -75,14 +74,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func copyToken() {
         let secret = keychain["base32"]
         guard let data = base32DecodeToData(secret ?? "") else { return }
+        var textToCopy = "ERR_INVALID_TOTP_SECRET"
         if let totp = TOTP(secret: data) {
-            let token = totp.generate(time: Date())
-            let pasteBoard = NSPasteboard.general
-            pasteBoard.clearContents()
-            pasteBoard.setString(token ?? "", forType: .string)
-        } else {
-            print("Invalid TOTP secret")
+            textToCopy = totp.generate(time: Date()) ?? ""
         }
+        let pasteBoard = NSPasteboard.general
+        pasteBoard.clearContents()
+        pasteBoard.setString(textToCopy, forType: .string)
     }
 
     @objc func promptSecret() -> Bool {
@@ -100,7 +98,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if (response == .alertFirstButtonReturn) {
             keychain["base32"] = txt.stringValue
             statusBarItem.menu?.item(at: 0)?.action = #selector(AppDelegate.copyToken)
-            print("Writing secret to storage:", txt.stringValue)
             return true
         }
         return false
