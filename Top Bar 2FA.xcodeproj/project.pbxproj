@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		391D3BF8244BA39400F16120 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 391D3BF7244BA39400F16120 /* KeychainAccess */; };
 		391E040D244A851D004A05C1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391E040C244A851D004A05C1 /* AppDelegate.swift */; };
 		391E0411244A8521004A05C1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 391E0410244A8521004A05C1 /* Assets.xcassets */; };
 		391E0414244A8521004A05C1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 391E0413244A8521004A05C1 /* Preview Assets.xcassets */; };
@@ -29,6 +30,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				391D3BF8244BA39400F16120 /* KeychainAccess in Frameworks */,
 				39EFBE02244AFE7C009EF31C /* SwiftOTP in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -91,6 +93,7 @@
 			name = "Top Bar 2FA";
 			packageProductDependencies = (
 				39EFBE01244AFE7C009EF31C /* SwiftOTP */,
+				391D3BF7244BA39400F16120 /* KeychainAccess */,
 			);
 			productName = "Top Bar 2FA";
 			productReference = 391E0409244A851D004A05C1 /* Top Bar 2FA.app */;
@@ -122,6 +125,7 @@
 			mainGroup = 391E0400244A851D004A05C1;
 			packageReferences = (
 				39EFBE00244AFE7C009EF31C /* XCRemoteSwiftPackageReference "SwiftOTP" */,
+				391D3BF6244BA39400F16120 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 			);
 			productRefGroup = 391E040A244A851D004A05C1 /* Products */;
 			projectDirPath = "";
@@ -347,6 +351,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		391D3BF6244BA39400F16120 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.1.0;
+			};
+		};
 		39EFBE00244AFE7C009EF31C /* XCRemoteSwiftPackageReference "SwiftOTP" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/lachlanbell/SwiftOTP";
@@ -358,6 +370,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		391D3BF7244BA39400F16120 /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 391D3BF6244BA39400F16120 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
+		};
 		39EFBE01244AFE7C009EF31C /* SwiftOTP */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 39EFBE00244AFE7C009EF31C /* XCRemoteSwiftPackageReference "SwiftOTP" */;

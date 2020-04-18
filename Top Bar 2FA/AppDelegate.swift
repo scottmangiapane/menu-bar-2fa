@@ -7,13 +7,14 @@
 //
 
 import Cocoa
+import KeychainAccess
 import SwiftOTP
 import SwiftUI
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-    var defaults = UserDefaults.standard
+    var keychain = Keychain(service: "com.scottmangiapane.top-bar-2fa")
     var window: NSWindow!
     var statusBarItem: NSStatusItem!
 
@@ -47,7 +48,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             action: #selector(AppDelegate.quitApp),
             keyEquivalent: "")
 
-        let secret = defaults.string(forKey: "base32")
+        let secret = keychain["base32"]
         print("Using secret:", secret ?? "")
         if (secret == nil) {
             statusBarMenu.item(at: 0)?.action = nil
@@ -72,8 +73,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc func copyToken() {
-        let base32 = defaults.string(forKey: "base32")
-        guard let data = base32DecodeToData(base32 ?? "") else { return }
+        let secret = keychain["base32"]
+        guard let data = base32DecodeToData(secret ?? "") else { return }
         if let totp = TOTP(secret: data) {
             let token = totp.generate(time: Date())
             let pasteBoard = NSPasteboard.general
@@ -87,6 +88,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func promptSecret() -> Bool {
         let alert = NSAlert()
         alert.messageText = "What is your 2FA secret in base 32?"
+        alert.informativeText = "This can be found in the otpauth URL."
         alert.alertStyle = .informational
         alert.addButton(withTitle: "OK")
         alert.addButton(withTitle: "Cancel")
@@ -96,7 +98,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let response: NSApplication.ModalResponse = alert.runModal()
 
         if (response == .alertFirstButtonReturn) {
-            defaults.set(txt.stringValue, forKey: "base32")
+            keychain["base32"] = txt.stringValue
             statusBarItem.menu?.item(at: 0)?.action = #selector(AppDelegate.copyToken)
             print("Writing secret to storage:", txt.stringValue)
             return true
