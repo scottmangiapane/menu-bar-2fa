@@ -52,6 +52,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if (secret == nil) {
             statusBarMenu.item(at: 0)?.action = nil
         }
+
+        let timer = Timer.scheduledTimer(
+            timeInterval: 1.0,
+            target: self,
+            selector: #selector(AppDelegate.updateTimer),
+            userInfo: nil,
+            repeats: true
+        )
+        RunLoop.main.add(timer, forMode: .common)
+    }
+
+    @objc func updateTimer()
+    {
+        let calendar = NSCalendar.current
+        let components = calendar.dateComponents([.second], from: Date())
+        let remaining = 30 - components.second! % 30
+        statusBarItem.menu?.item(at: 0)?.title = "Copy 2FA token (" + String(remaining) + ")"
     }
 
     @objc func copyToken() {
