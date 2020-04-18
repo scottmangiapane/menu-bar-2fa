@@ -7,7 +7,7 @@
 //
 
 import Cocoa
-import SwiftUI
+import SwiftOTP
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -18,16 +18,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         NSApp.setActivationPolicy(.prohibited)
+        setupStatusBar()
+    }
 
+    func setupStatusBar() {
         let statusBar = NSStatusBar.system
         statusBarItem = statusBar.statusItem(withLength: NSStatusItem.squareLength)
         statusBarItem.button?.title = "🌯"
-        let statusBarMenu = NSMenu(title: "Cap Status Bar Menu")
+        let statusBarMenu = NSMenu()
         statusBarItem.menu = statusBarMenu
 
         statusBarMenu.addItem(
-            withTitle: "Order a burrito",
-            action: #selector(AppDelegate.orderABurrito),
+            withTitle: "Copy 2FA token",
+            action: #selector(AppDelegate.copyToken),
             keyEquivalent: "")
 
         statusBarMenu.addItem(
@@ -36,8 +39,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             keyEquivalent: "")
     }
 
-    @objc func orderABurrito() {
-        print("Ordering a burrito!")
+    func dialogOKCancel() -> Bool {
+        let alert = NSAlert()
+        alert.messageText = "Enter your Google Authenticator secret"
+        alert.informativeText = "Enter your Google Authenticator secret"
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: "Cancel")
+        return alert.runModal() == .alertFirstButtonReturn
+    }
+
+    @objc func copyToken() {
+        guard let data = base32DecodeToData("(put your token here)") else { return }
+        if let totp = TOTP(secret: data) {
+            let token = totp.generate(time: Date())
+            print(token as Any)
+            let pasteBoard = NSPasteboard.general
+            pasteBoard.clearContents()
+            pasteBoard.setString(token ?? "", forType: .string)
+            let answer = dialogOKCancel()
+            print(answer)
+        } else {
+            print("Invalid token URL")
+        }
     }
 
     @objc func quitApp() {
