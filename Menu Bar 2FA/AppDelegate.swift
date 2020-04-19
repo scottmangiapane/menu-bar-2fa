@@ -32,7 +32,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusBarItem.menu = statusBarMenu
 
         statusBarMenu.addItem(
-            withTitle: "Copy 2FA token",
+            withTitle: "Copy 2FA Token",
             action: #selector(AppDelegate.copyToken),
             keyEquivalent: "")
 
@@ -68,7 +68,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let calendar = NSCalendar.current
         let components = calendar.dateComponents([.second], from: Date())
         let remaining = 30 - components.second! % 30
-        statusBarItem.menu?.item(at: 0)?.title = "Copy 2FA token (" + String(remaining) + ")"
+        statusBarItem.menu?.item(at: 0)?.title = "Copy 2FA Token (" + String(remaining) + ")"
     }
 
     @objc func copyToken() {
