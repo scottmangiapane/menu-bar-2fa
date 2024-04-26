@@ -1,6 +1,9 @@
 ## Menu Bar 2FA
 
-This is a simple MacOS app I made to practice Swift. It lives in the MacOS menu bar and copies TOTP codes to the clipboard when clicked. At the moment it only supports a single 2FA account at a time, but that could change in a future release. TOTP secrets are stored in the keychain.
+This is a simple MacOS app I made to practice Swift. It lives in the MacOS menu bar and copies TOTP codes to the clipboard when clicked. It only supports a single 2FA account at a time. TOTP secrets are stored in the keychain.
+
+Want something that supports multiple 2FA accounts, or that works on Linux/Windows? Check out my 2FA chrome extension:
+https://github.com/scottmangiapane/authenticator
 
 ## Screenshots
 
