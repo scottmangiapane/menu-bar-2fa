@@ -23,4 +23,6 @@ In this example, the base32 secret key is "JBSWY3DPEHPK3PXP".
 
 ## Download
 
-The compiled version of this app can be downloaded from the [releases page](https://github.com/scottmangiapane/menu-bar-2fa/releases). It is not notarized (the Apple Developer Program is expensive!) so you will have to allow execution in `System Preferences > Security & Privacy > General`. If you want it to start automatically on login, you can do so in `System Preferences > Users & Groups > Login Items`.
+The compiled version of this app can be downloaded from the [releases page](https://github.com/scottmangiapane/menu-bar-2fa/releases). Version 1.0.1 and later is a universal binary that runs natively on Apple Silicon and Intel Macs (no Rosetta required) and requires macOS 12 or later.
+
+It is not notarized (the Apple Developer Program is expensive!) so you will have to allow execution in `System Settings > Privacy & Security`. If you want it to start automatically on login, you can do so in `System Settings > General > Login Items`.
