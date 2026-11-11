@@ -1,28 +1,23 @@
 ## Menu Bar 2FA
 
-This is a simple MacOS app I made to practice Swift. It lives in the MacOS menu bar and copies TOTP codes to the clipboard when clicked. It only supports a single 2FA account at a time. TOTP secrets are stored in the keychain.
+A lightweight macOS menu bar app that generates time-based one-time passwords (TOTP) and copies them to the clipboard. Multiple 2FA accounts are supported, with their secrets stored securely in the macOS Keychain.
 
-Want something that supports multiple 2FA accounts, works on all operating systems, and syncs across devices? Check out my 2FA chrome extension:
-https://github.com/scottmangiapane/authenticator
+## Managing accounts
 
-## Screenshots
+Click the menu bar lock icon to see configured accounts. Open an account's submenu to copy its current token, edit its name or secret, or remove it. Select **Add Account…** to configure another account. Each account can have a descriptive name, such as `GitHub – alice@example.com`.
 
-<img src="Screenshots/copy.png" width="400">
-<img src="Screenshots/prompt.png" width="400">
+The app accepts Base32 secrets extracted from an `otpauth://` URL. For example:
 
-## How to find the 2FA secret
-
-Time-based 2FA apps generate their tokens by combining a secret key (unique to the user of the website) and the current time. The secret key is usually embedded in a QR code that you scan with your phone. Unfortunately, *Menu Bar 2FA* doesn't know how to scan QR codes, so you will have to extract it yourself with one of the many existing [QR decoding tools](https://google.com/search?q=online+QR+code+decoder).
-
-This gives you an [otpauth URL](https://github.com/google/google-authenticator/wiki/Key-Uri-Format), which will look like this:
 ```
 otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example
 ```
 
-In this example, the base32 secret key is "JBSWY3DPEHPK3PXP".
+In this example, the Base32 secret is `JBSWY3DPEHPK3PXP`. QR-code scanning and automatic `otpauth://` URL parsing are not currently supported.
+
+Existing installations are migrated automatically: a previously saved single secret is imported as an account named **Default** the first time the updated app launches.
 
 ## Download
 
 The compiled version of this app can be downloaded from the [releases page](https://github.com/scottmangiapane/menu-bar-2fa/releases). Version 1.0.1 and later is a universal binary that runs natively on Apple Silicon and Intel Macs (no Rosetta required) and requires macOS 12 or later.
 
-It is not notarized (the Apple Developer Program is expensive!) so you will have to allow execution in `System Settings > Privacy & Security`. If you want it to start automatically on login, you can do so in `System Settings > General > Login Items`.
+It is not notarized (the Apple Developer Program is expensive), so macOS may require allowing execution in **System Settings > Privacy & Security**. To start the app automatically at login, add it under **System Settings > General > Login Items**.
