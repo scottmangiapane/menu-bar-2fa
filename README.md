@@ -4,7 +4,7 @@ A lightweight macOS menu bar app that generates time-based one-time passwords (T
 
 ## Managing accounts
 
-Click the menu bar lock icon to see configured accounts. Open an account's submenu to copy its current token, edit its name or secret, or remove it. Select **Add Account…** to configure another account. Each account can have a descriptive name, such as `GitHub – alice@example.com`.
+Click the menu bar lock icon to see configured accounts. Open an account's submenu to copy its current token, edit its name or secret, remove it, or change its position with **Move Up** and **Move Down**. The first account cannot move up, and the last account cannot move down. Account order is saved securely and restored when the app launches. Select **Add Account…** to configure another account. Each account can have a descriptive name, such as `GitHub – alice@example.com`.
 
 The app accepts Base32 secrets extracted from an `otpauth://` URL. For example:
 

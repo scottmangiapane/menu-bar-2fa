@@ -153,6 +153,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 removeItem.isEnabled = !accountStorageUnavailable
                 accountMenu.addItem(removeItem)
 
+                accountMenu.addItem(.separator())
+
+                let moveUpItem = NSMenuItem(
+                    title: "Move Up",
+                    action: #selector(moveAccountUp(_:)),
+                    keyEquivalent: ""
+                )
+                moveUpItem.target = self
+                moveUpItem.representedObject = account.id.uuidString
+                moveUpItem.isEnabled = !accountStorageUnavailable && accounts.first?.id != account.id
+                accountMenu.addItem(moveUpItem)
+
+                let moveDownItem = NSMenuItem(
+                    title: "Move Down",
+                    action: #selector(moveAccountDown(_:)),
+                    keyEquivalent: ""
+                )
+                moveDownItem.target = self
+                moveDownItem.representedObject = account.id.uuidString
+                moveDownItem.isEnabled = !accountStorageUnavailable && accounts.last?.id != account.id
+                accountMenu.addItem(moveDownItem)
+
                 accountItem.submenu = accountMenu
                 statusBarMenu.addItem(accountItem)
             }
@@ -263,6 +285,32 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             accounts.insert(removedAccount, at: accountIndex)
             return
         }
+        rebuildMenu()
+    }
+
+    @objc private func moveAccountUp(_ sender: NSMenuItem) {
+        moveAccount(sender, offset: -1)
+    }
+
+    @objc private func moveAccountDown(_ sender: NSMenuItem) {
+        moveAccount(sender, offset: 1)
+    }
+
+    private func moveAccount(_ sender: NSMenuItem, offset: Int) {
+        guard !accountStorageUnavailable,
+              let accountID = accountID(from: sender),
+              let currentIndex = accounts.firstIndex(where: { $0.id == accountID }) else { return }
+
+        let destinationIndex = currentIndex + offset
+        guard accounts.indices.contains(destinationIndex) else { return }
+
+        accounts.swapAt(currentIndex, destinationIndex)
+        guard saveAccounts() else {
+            // Restore the in-memory order if Keychain persistence fails.
+            accounts.swapAt(currentIndex, destinationIndex)
+            return
+        }
+
         rebuildMenu()
     }
 
