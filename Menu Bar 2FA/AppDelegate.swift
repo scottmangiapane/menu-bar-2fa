@@ -9,19 +9,8 @@
 import Cocoa
 import KeychainAccess
 import SwiftOTP
-import SwiftUI
-
-private struct OTPAccount: Codable, Identifiable {
-    let id: UUID
-    var name: String
-    var secret: String
-
-    init(id: UUID = UUID(), name: String, secret: String) {
-        self.id = id
-        self.name = name
-        self.secret = secret
-    }
-}
+import Vision
+import UniformTypeIdentifiers
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -33,8 +22,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var accounts: [OTPAccount] = []
     private var copyMenuItems: [UUID: NSMenuItem] = [:]
     private var accountStorageUnavailable = false
+    private weak var activeNameField: NSTextField?
+    private weak var activeSecretField: NSSecureTextField?
+    private weak var activeImportStatusLabel: NSTextField?
+    private var activeTOTPConfiguration: TOTPConfiguration?
 
-    var window: NSWindow!
     var statusBarItem: NSStatusItem!
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
@@ -59,14 +51,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
 
                 accounts = decodedAccounts
+                // The collection is now authoritative; remove any obsolete single-account value.
+                try? keychain.remove(legacySecretKey)
                 return
             }
 
             // Migrate the single-account format used by earlier versions.
             if let legacySecret = try keychain.get(legacySecretKey), !legacySecret.isEmpty {
                 accounts = [OTPAccount(name: "Default", secret: legacySecret)]
-                // Keep the legacy item as a backup. Newer versions read `accounts` first.
-                _ = saveAccounts()
+                if saveAccounts() {
+                    try? keychain.remove(legacySecretKey)
+                }
             }
         } catch {
             accounts = []
@@ -112,6 +107,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func rebuildMenu() {
         let statusBarMenu = NSMenu()
+        statusBarMenu.autoenablesItems = false
         copyMenuItems.removeAll()
 
         if accounts.isEmpty {
@@ -122,9 +118,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             for account in accounts {
                 let accountItem = NSMenuItem(title: account.name, action: nil, keyEquivalent: "")
                 let accountMenu = NSMenu()
+                accountMenu.autoenablesItems = false
 
                 let copyItem = NSMenuItem(
-                    title: copyTokenTitle,
+                    title: copyTokenTitle(for: account),
                     action: #selector(copyToken(_:)),
                     keyEquivalent: ""
                 )
@@ -132,6 +129,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 copyItem.representedObject = account.id.uuidString
                 accountMenu.addItem(copyItem)
                 copyMenuItems[account.id] = copyItem
+
+                accountMenu.addItem(.separator())
 
                 let editItem = NSMenuItem(
                     title: "Edit Account…",
@@ -179,7 +178,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 statusBarMenu.addItem(accountItem)
             }
         }
-
         statusBarMenu.addItem(.separator())
 
         let addItem = NSMenuItem(
@@ -205,19 +203,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         updateTimer()
     }
 
-    private var copyTokenTitle: String {
-        "Copy 2FA Token (\(secondsUntilNextToken))"
+    private func copyTokenTitle(for account: OTPAccount) -> String {
+        "Copy Code (\(secondsUntilNextToken(period: account.configuration.period))s)"
     }
 
-    private var secondsUntilNextToken: Int {
-        let elapsedSeconds = Int(Date().timeIntervalSince1970) % 30
-        return 30 - elapsedSeconds
+    private func secondsUntilNextToken(period: Int) -> Int {
+        guard period > 0 else { return 0 }
+        let elapsedSeconds = Int(Date().timeIntervalSince1970) % period
+        return period - elapsedSeconds
     }
 
     @objc private func updateTimer() {
-        let title = copyTokenTitle
-        for menuItem in copyMenuItems.values {
-            menuItem.title = title
+        for account in accounts {
+            copyMenuItems[account.id]?.title = copyTokenTitle(for: account)
         }
     }
 
@@ -226,18 +224,26 @@ class AppDelegate: NSObject, NSApplicationDelegate {
               let id = UUID(uuidString: idString),
               let account = accounts.first(where: { $0.id == id }),
               let data = base32DecodeToData(account.secret),
-              let totp = TOTP(secret: data),
+              let totp = TOTP(
+                  secret: data,
+                  digits: account.configuration.digits,
+                  timeInterval: account.configuration.period,
+                  algorithm: account.configuration.algorithm.swiftOTPAlgorithm
+              ),
               let token = totp.generate(time: Date()) else {
             showError(
                 title: "Couldn't Generate Token",
-                message: "This account's secret is invalid. Edit the account and check its Base32 secret."
+                message: "This account's setup is invalid. Edit the account and check its setup information."
             )
             return
         }
 
         let pasteBoard = NSPasteboard.general
         pasteBoard.clearContents()
-        pasteBoard.setString(token, forType: .string)
+        guard pasteBoard.setString(token, forType: .string) else {
+            showError(title: "Couldn't Copy Token", message: "The token was generated, but macOS couldn't write it to the clipboard.")
+            return
+        }
     }
 
     @objc private func addAccount() {
@@ -246,6 +252,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         accounts.append(account)
         guard saveAccounts() else {
             accounts.removeAll { $0.id == account.id }
+            rebuildMenu()
             return
         }
         rebuildMenu()
@@ -261,6 +268,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         accounts[accountIndex] = updatedAccount
         guard saveAccounts() else {
             accounts[accountIndex] = originalAccount
+            rebuildMenu()
             return
         }
         rebuildMenu()
@@ -283,6 +291,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let removedAccount = accounts.remove(at: accountIndex)
         guard saveAccounts() else {
             accounts.insert(removedAccount, at: accountIndex)
+            rebuildMenu()
             return
         }
         rebuildMenu()
@@ -308,6 +317,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         guard saveAccounts() else {
             // Restore the in-memory order if Keychain persistence fails.
             accounts.swapAt(currentIndex, destinationIndex)
+            rebuildMenu()
             return
         }
 
@@ -322,36 +332,123 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func promptForAccount(existingAccount: OTPAccount? = nil) -> OTPAccount? {
         let alert = NSAlert()
         alert.messageText = existingAccount == nil ? "Add 2FA Account" : "Edit 2FA Account"
-        alert.informativeText = "Enter a name and the account's Base32 secret."
+        alert.informativeText = "Paste an authenticator setup link or secret key, or import a QR code image. Any settings included in a setup link or QR code are kept, while a key entered on its own uses the standard settings: SHA-1, 6 digits, and a new code every 30 seconds."
         alert.alertStyle = .informational
-        alert.addButton(withTitle: "Save")
+        alert.addButton(withTitle: existingAccount == nil ? "Add Account" : "Save Changes")
         alert.addButton(withTitle: "Cancel")
 
-        let accessoryView = NSView(frame: NSRect(x: 0, y: 0, width: 280, height: 64))
+        let accessoryWidth: CGFloat = 380
+        let accessoryHeight: CGFloat = 300
+        let accessoryView = NSView(frame: NSRect(x: 0, y: 0, width: accessoryWidth, height: accessoryHeight))
 
-        let nameField = NSTextField(frame: NSRect(x: 0, y: 36, width: 280, height: 24))
-        nameField.placeholderString = "Account name (e.g. GitHub – alice)"
+        let setupHeading = NSTextField(labelWithString: "1. Add your setup information")
+        setupHeading.frame = NSRect(x: 0, y: 274, width: accessoryWidth, height: 18)
+        setupHeading.font = .boldSystemFont(ofSize: NSFont.systemFontSize)
+
+        let pasteButton = NSButton(
+            title: "Paste from Clipboard",
+            target: self,
+            action: #selector(pasteSetupInformation(_:))
+        )
+        pasteButton.frame = NSRect(x: 0, y: 235, width: accessoryWidth, height: 30)
+        pasteButton.bezelStyle = .rounded
+        pasteButton.controlSize = .large
+
+        let pasteDescription = NSTextField(labelWithString: "Accepts a QR code image, setup URL, or Base32 secret key.")
+        pasteDescription.frame = NSRect(x: 0, y: 215, width: accessoryWidth, height: 16)
+        pasteDescription.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
+        pasteDescription.textColor = .secondaryLabelColor
+
+        let importFileButton = NSButton(
+            title: "Choose QR Code Image…",
+            target: self,
+            action: #selector(importQRCodeFromFile(_:))
+        )
+        importFileButton.frame = NSRect(x: 0, y: 175, width: accessoryWidth, height: 30)
+        importFileButton.bezelStyle = .rounded
+        importFileButton.controlSize = .large
+
+        let importDescription = NSTextField(labelWithString: "Import a QR code image saved on this Mac.")
+        importDescription.frame = NSRect(x: 0, y: 155, width: accessoryWidth, height: 16)
+        importDescription.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
+        importDescription.textColor = .secondaryLabelColor
+
+        let separator = NSBox(frame: NSRect(x: 0, y: 142, width: accessoryWidth, height: 1))
+        separator.boxType = .separator
+
+        let manualHeading = NSTextField(labelWithString: "Or enter a Base32 secret key")
+        manualHeading.frame = NSRect(x: 0, y: 118, width: accessoryWidth, height: 18)
+        manualHeading.font = .systemFont(ofSize: NSFont.systemFontSize)
+
+        let manualEntryButton = NSButton(
+            title: "Enter setup key manually…",
+            target: self,
+            action: #selector(revealManualSecretField(_:))
+        )
+        manualEntryButton.frame = NSRect(x: 0, y: 86, width: accessoryWidth, height: 26)
+        manualEntryButton.bezelStyle = .rounded
+
+        let secretField = NSSecureTextField(frame: NSRect(x: 0, y: 86, width: accessoryWidth, height: 26))
+        secretField.placeholderString = "Base32 secret key"
+        secretField.stringValue = existingAccount?.secret ?? ""
+        secretField.isHidden = true
+
+        let statusLabel = NSTextField(labelWithString: existingAccount == nil
+            ? "No setup information imported yet"
+            : "Existing setup information will be kept")
+        statusLabel.frame = NSRect(x: 0, y: 64, width: accessoryWidth, height: 16)
+        statusLabel.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
+        statusLabel.textColor = .secondaryLabelColor
+
+        let nameHeading = NSTextField(labelWithString: "2. Name your account (optional)")
+        nameHeading.frame = NSRect(x: 0, y: 34, width: accessoryWidth, height: 18)
+        nameHeading.font = .boldSystemFont(ofSize: NSFont.systemFontSize)
+
+        let nameField = NSTextField(frame: NSRect(x: 0, y: 4, width: accessoryWidth, height: 24))
+        nameField.placeholderString = "e.g. GitHub – alice"
         nameField.stringValue = existingAccount?.name ?? ""
 
-        let secretField = NSSecureTextField(frame: NSRect(x: 0, y: 4, width: 280, height: 24))
-        secretField.placeholderString = "Base32 secret"
-        secretField.stringValue = existingAccount?.secret ?? ""
-
-        accessoryView.addSubview(nameField)
+        accessoryView.addSubview(setupHeading)
+        accessoryView.addSubview(pasteButton)
+        accessoryView.addSubview(pasteDescription)
+        accessoryView.addSubview(importFileButton)
+        accessoryView.addSubview(importDescription)
+        accessoryView.addSubview(separator)
+        accessoryView.addSubview(manualHeading)
+        accessoryView.addSubview(manualEntryButton)
         accessoryView.addSubview(secretField)
+        accessoryView.addSubview(statusLabel)
+        accessoryView.addSubview(nameHeading)
+        accessoryView.addSubview(nameField)
         alert.accessoryView = accessoryView
-        alert.window.initialFirstResponder = nameField
+
+        activeNameField = nameField
+        activeSecretField = secretField
+        activeImportStatusLabel = statusLabel
+        activeTOTPConfiguration = existingAccount?.configuration ?? .standard
+        defer {
+            activeNameField = nil
+            activeSecretField = nil
+            activeImportStatusLabel = nil
+            activeTOTPConfiguration = nil
+        }
 
         guard alert.runModal() == .alertFirstButtonReturn else { return nil }
 
         let nameInput = nameField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        let secret = normalizedSecret(from: secretField.stringValue)
+        let secret = TOTPProvisioning.normalizedSecret(from: secretField.stringValue)
         guard !secret.isEmpty,
               let secretData = base32DecodeToData(secret),
-              TOTP(secret: secretData) != nil else {
+              let configuration = activeTOTPConfiguration,
+              TOTP(
+                  secret: secretData,
+                  digits: configuration.digits,
+                  timeInterval: configuration.period,
+                  algorithm: configuration.algorithm.swiftOTPAlgorithm
+              ) != nil else {
             showError(
-                title: "Invalid 2FA Secret",
-                message: "Enter a valid Base32 secret. The account was not saved."
+                title: "Invalid 2FA Setup",
+                message: "Import a supported TOTP QR code, paste a setup URL, or enter a valid setup key. The account was not saved."
             )
             return nil
         }
@@ -362,22 +459,180 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         } else if let existingAccount {
             name = existingAccount.name
         } else {
-            name = "Account \(accounts.count + 1)"
+            name = nextDefaultAccountName()
         }
 
         return OTPAccount(
             id: existingAccount?.id ?? UUID(),
             name: name,
-            secret: secret
+            secret: secret,
+            configuration: activeTOTPConfiguration ?? .standard
         )
     }
 
-    private func normalizedSecret(from input: String) -> String {
-        input
-            .components(separatedBy: .whitespacesAndNewlines)
-            .joined()
-            .replacingOccurrences(of: "-", with: "")
-            .uppercased()
+    private func nextDefaultAccountName() -> String {
+        let highestExistingNumber = accounts.compactMap { account -> Int? in
+            let prefix = "Account "
+            guard account.name.hasPrefix(prefix),
+                  let number = Int(account.name.dropFirst(prefix.count)),
+                  number > 0 else {
+                return nil
+            }
+            return number
+        }.max() ?? 0
+
+        return "Account \(highestExistingNumber + 1)"
+    }
+
+    @objc private func revealManualSecretField(_ sender: NSButton) {
+        sender.isHidden = true
+        // Revealing the key field must not discard settings from an imported URL or existing account.
+        guard let secretField = activeSecretField else { return }
+        secretField.isHidden = false
+        activeImportStatusLabel?.stringValue = "Enter a Base32 key below. The current TOTP settings are retained."
+        activeImportStatusLabel?.textColor = .secondaryLabelColor
+        secretField.window?.makeFirstResponder(secretField)
+    }
+
+    @objc private func importQRCodeFromFile(_ sender: NSButton) {
+        let panel = NSOpenPanel()
+        panel.title = "Choose a 2FA QR Code Image"
+        panel.prompt = "Import QR Code"
+        panel.allowedContentTypes = [.image]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        let didStartAccessing = url.startAccessingSecurityScopedResource()
+        defer {
+            if didStartAccessing {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+
+        do {
+            let imageData = try Data(contentsOf: url)
+            _ = importQRCode(from: imageData)
+        } catch {
+            showError(title: "Couldn't Open Image", message: error.localizedDescription)
+        }
+    }
+
+    @objc private func pasteSetupInformation(_ sender: NSButton) {
+        let pasteboard = NSPasteboard.general
+
+        // Screenshots copied with the macOS screenshot tool are commonly available as TIFF or PNG.
+        if let imageData = pasteboard.data(forType: .tiff) ?? pasteboard.data(forType: .png) {
+            _ = importQRCode(from: imageData)
+            return
+        }
+
+        if let string = pasteboard.string(forType: .string) {
+            _ = importSetupValue(string)
+            return
+        }
+
+        showError(
+            title: "Nothing to Import",
+            message: "The clipboard doesn't contain a readable TOTP QR code, setup URL, or setup key."
+        )
+    }
+
+    @discardableResult
+    private func importQRCode(from imageData: Data) -> Bool {
+        let request = VNDetectBarcodesRequest()
+        request.symbologies = [.qr]
+
+        do {
+            let handler = VNImageRequestHandler(data: imageData, options: [:])
+            try handler.perform([request])
+
+            let observations = request.results ?? []
+            guard !observations.isEmpty else {
+                showError(
+                    title: "Couldn't Read QR Code",
+                    message: "No QR code was found in that image. Try a clearer screenshot or another image."
+                )
+                return false
+            }
+            guard observations.count == 1 else {
+                showError(
+                    title: "Couldn't Read QR Code",
+                    message: "More than one QR code was found. Crop the image so it contains only the intended code."
+                )
+                return false
+            }
+            guard let payload = observations.first?.payloadStringValue else {
+                showError(
+                    title: "Couldn't Read QR Code",
+                    message: "The QR code couldn't be decoded as text. Try another image."
+                )
+                return false
+            }
+
+            return importSetupValue(payload)
+        } catch {
+            showError(title: "Couldn't Read QR Code", message: error.localizedDescription)
+            return false
+        }
+    }
+
+    @discardableResult
+    private func importSetupValue(_ value: String) -> Bool {
+        let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        let secret: String
+        let issuer: String?
+
+        if trimmedValue.lowercased().hasPrefix("otpauth://") {
+            guard let provisioningInfo = TOTPProvisioning.parse(trimmedValue) else {
+                showError(
+                    title: "Unsupported Setup Code",
+                    message: "This setup URL isn't a supported TOTP configuration. Menu Bar 2FA supports SHA-1, SHA-256, or SHA-512; 6- or 8-digit codes; and any positive time period."
+                )
+                return false
+            }
+
+            secret = provisioningInfo.secret
+            issuer = provisioningInfo.issuer
+            activeTOTPConfiguration = provisioningInfo.configuration
+        } else {
+            secret = TOTPProvisioning.normalizedSecret(from: trimmedValue)
+            issuer = nil
+            // A raw setup key carries no TOTP parameters, so use the standard defaults.
+            activeTOTPConfiguration = .standard
+        }
+
+        guard let secretData = base32DecodeToData(secret) else {
+            showError(
+                title: "Invalid Setup Key",
+                message: "The imported value isn't a valid TOTP setup key."
+            )
+            return false
+        }
+
+        let configuration = activeTOTPConfiguration ?? .standard
+        guard TOTP(
+            secret: secretData,
+            digits: configuration.digits,
+            timeInterval: configuration.period,
+            algorithm: configuration.algorithm.swiftOTPAlgorithm
+        ) != nil else {
+            showError(
+                title: "Invalid TOTP Configuration",
+                message: "The setup information contains unsupported TOTP settings."
+            )
+            return false
+        }
+
+        activeSecretField?.stringValue = secret
+        activeImportStatusLabel?.stringValue = "Setup code imported"
+        activeImportStatusLabel?.textColor = .systemGreen
+        if let issuer,
+           activeNameField?.stringValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == true {
+            activeNameField?.stringValue = issuer
+        }
+        return true
     }
 
     private func showError(title: String, message: String) {
@@ -392,6 +647,4 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func quitApp() {
         NSApplication.shared.terminate(self)
     }
-
-    func applicationWillTerminate(_ aNotification: Notification) {}
 }

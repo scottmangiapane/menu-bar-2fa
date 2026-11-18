@@ -13,6 +13,8 @@
 		391E0414244A8521004A05C1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 391E0413244A8521004A05C1 /* Preview Assets.xcassets */; };
 		391E0417244A8521004A05C1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 391E0415244A8521004A05C1 /* Main.storyboard */; };
 		39EFBE02244AFE7C009EF31C /* SwiftOTP in Frameworks */ = {isa = PBXBuildFile; productRef = 39EFBE01244AFE7C009EF31C /* SwiftOTP */; };
+		A10000000000000000000001 /* TOTPModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* TOTPModels.swift */; };
+		A10000000000000000000003 /* TOTPProvisioning.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000004 /* TOTPProvisioning.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +25,8 @@
 		391E0416244A8521004A05C1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		391E0418244A8521004A05C1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		391E0419244A8521004A05C1 /* Menu_Bar_2FA.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Menu_Bar_2FA.entitlements; sourceTree = "<group>"; };
+		A10000000000000000000002 /* TOTPModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TOTPModels.swift; sourceTree = "<group>"; };
+		A10000000000000000000004 /* TOTPProvisioning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TOTPProvisioning.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +62,8 @@
 			isa = PBXGroup;
 			children = (
 				391E040C244A851D004A05C1 /* AppDelegate.swift */,
+				A10000000000000000000002 /* TOTPModels.swift */,
+				A10000000000000000000004 /* TOTPProvisioning.swift */,
 				391E0410244A8521004A05C1 /* Assets.xcassets */,
 				391E0415244A8521004A05C1 /* Main.storyboard */,
 				391E0418244A8521004A05C1 /* Info.plist */,
@@ -156,6 +162,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				391E040D244A851D004A05C1 /* AppDelegate.swift in Sources */,
+				A10000000000000000000001 /* TOTPModels.swift in Sources */,
+				A10000000000000000000003 /* TOTPProvisioning.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -209,7 +217,6 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = Q642H6AN2C;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -274,7 +281,6 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = Q642H6AN2C;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -304,17 +310,20 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Menu Bar 2FA/Preview Content\"";
+				DEVELOPMENT_TEAM = Q642H6AN2C;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "Menu Bar 2FA/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Menu Bar 2FA";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
-				MARKETING_VERSION = 1.1.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.scottmangiapane.Menu-Bar-2FA";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -330,17 +339,20 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Menu Bar 2FA/Preview Content\"";
+				DEVELOPMENT_TEAM = Q642H6AN2C;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "Menu Bar 2FA/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Menu Bar 2FA";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
-				MARKETING_VERSION = 1.0.1;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.scottmangiapane.Menu-Bar-2FA";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -377,7 +389,7 @@
 			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 4.1.0;
+				minimumVersion = 4.2.2;
 			};
 		};
 		39EFBE00244AFE7C009EF31C /* XCRemoteSwiftPackageReference "SwiftOTP" */ = {
@@ -385,7 +397,7 @@
 			repositoryURL = "https://github.com/lachlanbell/SwiftOTP";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 3.0.0;
+				minimumVersion = 3.0.2;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
