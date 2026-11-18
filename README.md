@@ -2,6 +2,11 @@
 
 A lightweight macOS menu bar app for generating and copying time-based one-time passwords (TOTP). Account secrets are stored locally in the macOS Keychain.
 
+# Screenshots
+
+<img src="/Screenshots/screenshot-1.png" alt="demo" width="400">
+<img src="/Screenshots/screenshot-2.png" alt="demo" width="400">
+
 ## Features
 
 - Add, rename, remove, and reorder multiple accounts.
